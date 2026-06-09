@@ -1,0 +1,8 @@
+              precision    recall  f1-score   support
+
+       Норма       0.95      0.91      0.93      5599
+       Атака       0.89      0.94      0.91      4448
+
+    accuracy                           0.92     10047
+   macro avg       0.92      0.92      0.92     10047
+weighted avg       0.92      0.92      0.92     10047

@@ -1,0 +1,20 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.env
+
+# Runtime files
+*.log
+*.pid
+server.db
+operator_packet_labels.csv
+operator_packet_labels.jsonl
+dumps/
+
+# Local IDE/editor
+.vscode/
+.idea/

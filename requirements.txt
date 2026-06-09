@@ -1,0 +1,8 @@
+flask>=3.0
+requests>=2.31
+scapy>=2.5
+numpy>=1.26
+pandas>=2.2
+tensorflow>=2.16; platform_machine == 'arm64'
+tensorflow>=2.16; platform_machine != 'arm64'
+psycopg[binary]>=3.2

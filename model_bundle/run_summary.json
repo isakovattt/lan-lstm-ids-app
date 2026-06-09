@@ -1,0 +1,56 @@
+{
+  "unit_of_training": "packet with LSTM context; hard validation/test windows; no window leakage",
+  "experiment_name": "lan_lstm_smooth_90_ru",
+  "dataset": "quarantedeux42/lan-anomaly-lstm-moderate-hard-dataset",
+  "model": "Smooth 90 target: smaller regularized packet BiLSTM+LSTM on moderate-hard dataset; matched class+difficulty split; EMA report curves",
+  "context_len": 31,
+  "best_threshold": 0.47000000000000003,
+  "test_metrics": {
+    "split": "test_packet_hard",
+    "threshold": 0.47000000000000003,
+    "accuracy": 0.9216681596496467,
+    "precision": 0.888393804370889,
+    "recall": 0.9413219424460432,
+    "f1": 0.9140923479969436,
+    "roc_auc": 0.9696761031967425
+  },
+  "val_metrics": {
+    "split": "val_packet_hard",
+    "threshold": 0.47000000000000003,
+    "accuracy": 0.9253338942054895,
+    "precision": 0.8927374301675978,
+    "recall": 0.9455621301775148,
+    "f1": 0.9183908045977012,
+    "roc_auc": 0.9750967305564638
+  },
+  "split": [
+    {
+      "split": "train",
+      "samples": 44302,
+      "windows": 701,
+      "normal": 24218,
+      "attack": 20084,
+      "attack_rate": 0.4533429642002618
+    },
+    {
+      "split": "val",
+      "samples": 9509,
+      "windows": 152,
+      "normal": 5284,
+      "attack": 4225,
+      "attack_rate": 0.4443159112419813
+    },
+    {
+      "split": "test",
+      "samples": 10047,
+      "windows": 152,
+      "normal": 5599,
+      "attack": 4448,
+      "attack_rate": 0.44271921966756245
+    }
+  ],
+  "packet_features": 31,
+  "gpu_devices": [
+    "PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')"
+  ]
+}
