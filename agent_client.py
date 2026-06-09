@@ -142,7 +142,7 @@ def run_agent():
             print(f"📡 Сбор пакетов на {iface} ({capture_seconds} сек)...")
             packets = sniff(iface=iface, timeout=capture_seconds, store=True)
             if not packets:
-                print("⚠️ 0 пакетов — это НЕ аномалия. Проверь интерфейс или создай сетевой трафик.")
+                print("0 пакетов — это НЕ аномалия.")
                 continue
             packet_features, window_stats = extract_features(packets)
             data = {
