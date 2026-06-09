@@ -30,7 +30,7 @@ YELLOW = "#f59e0b"
 BLUE = "#6366f1"
 VIOLET = "#8b5cf6"
 
-
+#словарь рекомендаций
 NORMAL_FEATURE_RECOMMENDATIONS = {
     "Protocol": {
         "normal": "TCP, UDP, ARP; ICMP допускается ограниченно",
@@ -98,7 +98,7 @@ NORMAL_FEATURE_RECOMMENDATIONS = {
     },
 }
 
-
+# выбор интерфейса
 def choose_default_iface():
     """Prefer the real LAN/Wi‑Fi interface, not lo0/utun/awdl."""
     preferred = []
@@ -117,7 +117,7 @@ def choose_default_iface():
             return iface
     return get_if_list()[0] if get_if_list() else ""
 
-
+# всплывающие подсказки
 class Tooltip:
     def __init__(self, widget, text):
         self.widget = widget
@@ -127,7 +127,7 @@ class Tooltip:
             widget.bind("<Enter>", self.show, add="+")
             widget.bind("<Leave>", self.hide, add="+")
             widget.bind("<ButtonPress>", self.hide, add="+")
-
+# функция показ подсказки
     def show(self, _event=None):
         if self.tip or not self.text:
             return
@@ -142,7 +142,7 @@ class Tooltip:
             highlightbackground=BORDER, highlightthickness=1
         )
         label.pack()
-
+# функция скрытие подсказки
     def hide(self, _event=None):
         if self.tip:
             self.tip.destroy()
@@ -174,7 +174,7 @@ class RoundedButton(tk.Canvas):
         self.bind("<Leave>", self._on_leave)
         self.bind("<Button-1>", self._on_click)
         self.tooltip = Tooltip(self, tooltip)
-
+# функция скругленного прямоугольника
     def _rounded_rect(self, x1, y1, x2, y2, r, **kwargs):
         points = [
             x1+r, y1, x2-r, y1, x2, y1, x2, y1+r,
@@ -182,7 +182,7 @@ class RoundedButton(tk.Canvas):
             x1, y2, x1, y2-r, x1, y1+r, x1, y1,
         ]
         return self.create_polygon(points, smooth=True, **kwargs)
-
+# функция отрисовки кнопки
     def _draw(self, color):
         self.delete("all")
         w = int(self.cget("width"))
@@ -191,22 +191,22 @@ class RoundedButton(tk.Canvas):
         fg = pal["disabled_fg"] if self.state == "disabled" else pal["fg"]
         self._bg_item = self._rounded_rect(1, 1, w-1, h-1, self.radius, fill=color, outline="")
         self._text_item = self.create_text(w//2, h//2, text=self.text, fill=fg, font=self.font)
-
+# функция 
     def _current_color(self):
         pal = self.palette[self.kind]
         return pal["disabled"] if self.state == "disabled" else pal["bg"]
-
+# функция изменения цвет на цвет наведения.
     def _on_enter(self, _event=None):
         if self.state != "disabled":
             self._draw(self.palette[self.kind]["hover"])
-
+# функция Возвращаем обычный цвет.
     def _on_leave(self, _event=None):
         self._draw(self._current_color())
-
+# функция Запускается привязанная функция.
     def _on_click(self, _event=None):
         if self.state != "disabled" and self.command:
             self.command()
-
+# функция изменения состояния
     def config(self, cnf=None, **kw):
         if cnf:
             kw.update(cnf)
@@ -222,7 +222,7 @@ class RoundedButton(tk.Canvas):
 
     configure = config
 
-
+# функция главное окно админа
 class NetworkAgent:
     def __init__(self):
         self.root = tk.Tk()
@@ -249,7 +249,7 @@ class NetworkAgent:
         self.configure_style()
         self.create_gui()
         threading.Thread(target=self.auto_update, daemon=True).start()
-
+#функция стиля
     def configure_style(self):
         style = ttk.Style()
         try:
@@ -282,7 +282,7 @@ class NetworkAgent:
         style.configure("TNotebook", background=BG, borderwidth=0)
         style.configure("TNotebook.Tab", background=CARD_2, foreground=TEXT, padding=(16, 8), font=("Arial", 10, "bold"))
         style.map("TNotebook.Tab", background=[("selected", CARD)], foreground=[("selected", CYAN)])
-
+# метод интерфейса программы
     def create_gui(self):
         shell = tk.Frame(self.root, bg=BG)
         shell.pack(fill="both", expand=True, padx=24, pady=22)
