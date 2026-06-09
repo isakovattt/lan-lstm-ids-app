@@ -92,8 +92,6 @@ class LANLSTMAnalyzer:
             feature_path = self.bundle_dir / "feature_columns.json"
             scaler_path = self.bundle_dir / "scaler_params.npz"
             model_path = self.bundle_dir / "final_best_lan_lstm_smooth_90.keras"
-            if not model_path.exists():
-                model_path = self.bundle_dir / "best_lan_lstm_smooth_90.keras"
 
             self.feature_columns = json.loads(feature_path.read_text(encoding="utf-8"))["packet_features"]
             scaler = np.load(scaler_path)
