@@ -1,10 +1,4 @@
-#!/usr/bin/env python3
-"""Перенос данных из старого SQLite server.db в PostgreSQL.
 
-Перед запуском задайте IDS_DATABASE_URL, если используется не стандартная строка:
-export IDS_DATABASE_URL='postgresql://ids_user:ids_password@127.0.0.1:5432/ids_db'
-python migrate_sqlite_to_postgres.py
-"""
 
 import json
 import os
