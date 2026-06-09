@@ -1,10 +1,3 @@
-"""Runtime inference for the LAN packet-context LSTM.
-
-This module converts packets captured by the agent into the exact packet feature
-matrix used by the latest Kaggle LSTM model and returns a window-level anomaly
-probability.
-"""
-
 from __future__ import annotations
 
 import json
@@ -14,14 +7,14 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, List, Tuple
 
 import numpy as np
-
+#подключение к модели
 ROOT = Path(__file__).resolve().parent
 MODEL_BUNDLE = ROOT / "model_bundle"
 DEFAULT_THRESHOLD = 0.82
 CONTEXT_LEN = 31
 HALF = CONTEXT_LEN // 2
 
-
+# результат работы модели
 @dataclass
 class LSTMResult:
     probability: float
@@ -30,7 +23,7 @@ class LSTMResult:
     message: str
     details: Dict[str, Any]
 
-
+# функция категоризации портов
 def port_category(value: Any) -> int:
     try:
         port = int(float(value or 0))
@@ -46,7 +39,7 @@ def port_category(value: Any) -> int:
         return 3
     return 0
 
-
+#функция получение чисел
 def _num(row: Dict[str, Any], key: str, default: float = 0.0) -> float:
     try:
         return float(row.get(key, default) or default)
@@ -54,7 +47,7 @@ def _num(row: Dict[str, Any], key: str, default: float = 0.0) -> float:
         return float(default)
 
 
-class TemporalAttentionFallback:  # placeholder for type checkers; real class built lazily
+class TemporalAttentionFallback:  # Нужен только для проверки типов.
     pass
 
 
@@ -69,7 +62,7 @@ class LANLSTMAnalyzer:
         self.mean = None
         self.scale = None
         self._load()
-
+#функция загрузки модели
     def _load(self) -> None:
         try:
             import tensorflow as tf
@@ -106,7 +99,7 @@ class LANLSTMAnalyzer:
             self.available = False
             self.error = str(exc)
             logging.exception("Could not load LSTM model")
-
+#Преобразует пакет агента в формат модели.
     def packet_to_model_row(self, pkt: Dict[str, Any]) -> Dict[str, float]:
         proto = str(pkt.get("Protocol", "")).upper()
         if not proto:
@@ -147,7 +140,7 @@ class LANLSTMAnalyzer:
             "UDP_Dst_Port_Category": float(port_category(pkt.get("UDP Dst Port"))),
         }
         return row
-
+#подготовка последовательности;
     def build_matrix(self, packets: List[Dict[str, Any]]) -> np.ndarray:
         rows = [self.packet_to_model_row(pkt) for pkt in packets if isinstance(pkt, dict)]
         if not rows:
@@ -161,7 +154,7 @@ class LANLSTMAnalyzer:
                 row[f"{col}_roll3_mean"] = float(np.mean([rows[j][col] for j in range(start, i + 1)]))
 
         return np.array([[row.get(col, 0.0) for col in self.feature_columns] for row in rows], dtype="float32")
-
+#создание временных окон длиной 31 пакет;
     def _context_samples(self, arr: np.ndarray, max_samples: int = 160) -> np.ndarray:
         n = len(arr)
         if n <= max_samples:
@@ -179,7 +172,7 @@ class LANLSTMAnalyzer:
             x[left:left + min(len(scaled), CONTEXT_LEN)] = scaled[:CONTEXT_LEN]
             samples.append(x)
         return np.stack(samples).astype("float32")
-
+#получение итоговой вероятности аномалии с помощью LSTM и механизма Attention.
     def predict(self, packets: List[Dict[str, Any]], window_stats: Dict[str, Any] | None = None) -> LSTMResult:
         if not self.available:
             return self.heuristic_predict(packets, window_stats or {}, reason=f"LSTM unavailable: {self.error}")
@@ -208,7 +201,7 @@ class LANLSTMAnalyzer:
                 "prob_max": float(np.max(probs)) if len(probs) else 0.0,
             },
         )
-
+#резервный механизм (fallback). Она используется, когда LSTM-модель не смогла загрузиться или недоступна.
     def heuristic_predict(self, packets: List[Dict[str, Any]], window_stats: Dict[str, Any], reason: str = "") -> LSTMResult:
         total = float(window_stats.get("Total Packets per Window", len(packets)) or 0)
         syn = float(window_stats.get("SYN Flags per Window", 0) or 0)
