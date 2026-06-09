@@ -14,7 +14,7 @@ AGENT_ID = socket.gethostname()
 
 logging.basicConfig(filename="agent.log", level=logging.INFO, format="%(asctime)s - %(message)s")
 
-
+#функция автоматического выбора сетевой карты.
 def choose_default_iface():
     preferred = []
     for iface in get_if_list():
@@ -32,7 +32,7 @@ def choose_default_iface():
             return iface
     return conf.iface
 
-
+#функция подготовки данных для LSTM.
 def extract_features(packets):
     """Build packet rows + window stats compatible with the LSTM server."""
     try:
@@ -54,7 +54,7 @@ def extract_features(packets):
         "RST Flags per Window": 0,
     }
     rows = []
-
+# Обработка каждого пакета
     for pkt in packets:
         if Ether not in pkt:
             continue
@@ -80,11 +80,13 @@ def extract_features(packets):
             "IP Packet Length": int(len(pkt)),
             "Direction": direction,
         }
+        #Проверяем наличие IP-заголовка.
         if IP in pkt:
             row["IP Src"] = pkt[IP].src
             row["IP Dst"] = pkt[IP].dst
             row["TTL"] = int(pkt[IP].ttl)
             row["IP Packet Length"] = int(pkt[IP].len or len(pkt))
+            #Если пакет TCP
         if TCP in pkt:
             row["Protocol"] = "TCP"
             stats["TCP Protocol Count per Window"] += 1
@@ -117,10 +119,10 @@ def extract_features(packets):
             stats["ARP Protocol Count per Window"] += 1
             row["IP Packet Length"] = 60
         rows.append(row)
-
+# Возвращаем:признаки всех пакетов; статистику окна.
     return rows, stats
 
-
+# функция получает от сервера время захвата пакетов для одного окна анализа.
 def get_capture_window_seconds():
     try:
         r = requests.get(f"{SERVER_BASE}/config", timeout=5)
@@ -130,7 +132,7 @@ def get_capture_window_seconds():
         logging.warning(f"Не удалось получить config, использую {DEFAULT_CAPTURE_WINDOW_SECONDS} сек: {e}")
         return DEFAULT_CAPTURE_WINDOW_SECONDS
 
-
+#функция агента
 def run_agent():
     iface = os.environ.get("IDS_IFACE") or choose_default_iface()
     conf.iface = iface
@@ -153,6 +155,7 @@ def run_agent():
                 "captured_at": datetime.now().isoformat(),
                 "capture_window_seconds": capture_seconds,
             }
+            # отправка на сервер
             response = requests.post(SERVER_URL, json=data, timeout=30)
             response.raise_for_status()
             result = response.json()
