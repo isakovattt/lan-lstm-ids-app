@@ -1,41 +1,55 @@
 # LAN LSTM IDS App
 
-Финальная папка приложения: `/Users/deux/Documents/nei/lan_lstm_ids_app`
+Приложение для обнаружения аномалий в локальной сети с помощью обученной LSTM-модели.
 
 ## Что внутри
 
-- `server.py` — Flask-сервер с подключенной LSTM.
+- `server.py` — Flask-сервер с подключенной LSTM-моделью.
 - `agent.py` — desktop IDS GUI для перехвата, просмотра пакетов и инцидентов.
 - `agent_client.py` — консольный агент для конечного устройства.
 - `lstm_runtime.py` — подготовка признаков и inference через LSTM.
-- `model_bundle/` — сохраненная последняя модель, scaler, графики, метрики.
-- `.venv/` — виртуальное окружение с зависимостями.
+- `model_bundle/` — обученная модель, scaler, список признаков, графики и метрики.
 - `run_server.command` — запуск сервера.
 - `run_desktop_agent.command` — запуск desktop GUI.
 - `run_console_agent.command` — запуск консольного агента.
 
+## Обученная нейронная сеть
+
+Да, обученная нейронная сеть загружена в репозиторий в папке `model_bundle/`:
+
+- `best_lan_lstm_smooth_90.keras`
+- `final_best_lan_lstm_smooth_90.keras`
+- `scaler_params.npz`
+- `feature_columns.json`
+- `run_summary.json`
+
+## Датасет
+
+Датасет для обучения и проверки модели находится на Kaggle:
+
+<https://www.kaggle.com/datasets/quarantedeux42/lan-anomaly-lstm-moderate-hard-dataset>
+
+В GitHub-репозитории хранится приложение и обученный `model_bundle/`. Рабочие дампы пакетов, локальная БД, виртуальное окружение и операторская разметка не загружаются.
+
+## Установка
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
 
 ## PostgreSQL
 
-Сервер больше не использует локальный `server.db` как рабочую БД. Подключение берётся из переменной окружения:
+Сервер использует PostgreSQL. Подключение берётся из переменной окружения:
 
 ```bash
 export IDS_DATABASE_URL="postgresql://ids_user:ids_password@127.0.0.1:5432/ids_db"
 ```
 
-Перед первым запуском создайте пользователя и базу в PostgreSQL, затем установите зависимости:
-
-```bash
-cd /Users/deux/Documents/nei/lan_lstm_ids_app
-source .venv/bin/activate
-pip install -r requirements.txt
-```
-
 Если нужно перенести старые данные из SQLite `server.db` в PostgreSQL:
 
 ```bash
-cd /Users/deux/Documents/nei/lan_lstm_ids_app
-source .venv/bin/activate
 export IDS_DATABASE_URL="postgresql://ids_user:ids_password@127.0.0.1:5432/ids_db"
 python migrate_sqlite_to_postgres.py
 ```
@@ -45,8 +59,6 @@ python migrate_sqlite_to_postgres.py
 1. Запустить сервер:
 
 ```bash
-cd /Users/deux/Documents/nei/lan_lstm_ids_app
-source .venv/bin/activate
 python server.py
 ```
 
@@ -55,8 +67,6 @@ python server.py
 2. Запустить desktop IDS agent в другом окне:
 
 ```bash
-cd /Users/deux/Documents/nei/lan_lstm_ids_app
-source .venv/bin/activate
 python agent.py
 ```
 
@@ -65,28 +75,10 @@ python agent.py
 3. Если нужен консольный endpoint-agent:
 
 ```bash
-cd /Users/deux/Documents/nei/lan_lstm_ids_app
-source .venv/bin/activate
 python agent_client.py
 ```
 
 или `run_console_agent.command`.
-
-## Важно
-
-- Сервер работает на `http://127.0.0.1:5050`, потому что порт 5000 на macOS часто занят AirPlay/ControlCenter.
-- Для реального перехвата пакетов Scapy на macOS может потребовать права доступа к `/dev/bpf*`. Если перехват не стартует, запускай агент через терминал с повышенными правами macOS:
-
-```bash
-cd /Users/deux/Documents/nei/lan_lstm_ids_app
-sudo .venv/bin/python agent.py
-```
-
-или для консольного агента:
-
-```bash
-sudo .venv/bin/python agent_client.py
-```
 
 ## Проверка модели
 
@@ -96,4 +88,14 @@ sudo .venv/bin/python agent_client.py
 curl http://127.0.0.1:5050/model_status
 ```
 
-`available` должен быть `true`, `engine` в результатах `/analyze` должен быть `lstm`.
+`available` должен быть `true`, а `engine` в результатах `/analyze` должен быть `lstm`.
+
+## Важно
+
+- Сервер работает на `http://127.0.0.1:5050`, потому что порт 5000 на macOS часто занят AirPlay/ControlCenter.
+- Для реального перехвата пакетов Scapy на macOS может потребовать права доступа к `/dev/bpf*`.
+- Если перехват не стартует, запускайте агента с повышенными правами macOS:
+
+```bash
+sudo .venv/bin/python agent.py
+```
