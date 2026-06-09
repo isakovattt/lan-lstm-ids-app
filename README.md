@@ -1,4 +1,4 @@
-# LAN LSTM IDS App
+
 
 Приложение для обнаружения аномалий в локальной сети с помощью обученной LSTM-модели.
 
@@ -12,7 +12,7 @@
 
 ## Модель
 
-Приложение использует одну модель:
+Приложение использует модель:
 
 ```text
 model_bundle/final_best_lan_lstm_smooth_90.keras
@@ -56,13 +56,3 @@ python agent.py
 ```bash
 python agent_client.py
 ```
-
-Сервер работает на `http://127.0.0.1:5050`.
-
-## Проверка модели
-
-```bash
-curl http://127.0.0.1:5050/model_status
-```
-
-`available` должен быть `true`.
